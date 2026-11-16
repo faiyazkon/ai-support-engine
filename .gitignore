@@ -1,0 +1,31 @@
+# secrets
+.env
+*.key
+*.pem
+secrets/
+
+# python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# local data and databases
+*.db
+*.sqlite
+*.sqlite3
+chroma_db/
+data/private/
+logs/
+*.log
+
+# model downloads
+models/
+.cache/
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store

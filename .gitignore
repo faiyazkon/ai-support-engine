@@ -38,3 +38,6 @@ __pycache__/
 models_cache/
 comparison/
 tests/
+*.db
+*.db-wal
+*.db-shm

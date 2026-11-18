@@ -23,6 +23,12 @@ class Settings(BaseSettings):
     user_daily_limit: int = Field(default=50, gt=0)
     global_daily_limit: int = Field(default=2000, gt=0)
 
+    # Storage. SQLite is a single file. To use PostgreSQL later, only this line changes,
+    # for example postgresql+psycopg://user:password@localhost/support
+    database_url: str = "sqlite:///data/support.db"
+    # Message texts older than this are erased. The rest of the row (time, outcome, counts) stays.
+    retention_days: int = Field(default=30, gt=0)
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -29,3 +29,12 @@ models/
 .vscode/
 .idea/
 .DS_Store
+models_cache/
+.env
+.env.1
+.venv/
+__pycache__/
+.pytest_cache/
+models_cache/
+comparison/
+tests/

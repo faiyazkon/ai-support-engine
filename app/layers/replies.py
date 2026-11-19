@@ -2,7 +2,7 @@
 
 Every reply is in English and Bangla together, because Layer 3 happens before we know anything else about the person.
 """
-from app.schemas import Reply
+from app.api.schemas import Reply
 
 
 def fixed_reply(reason: str, max_chars: int) -> Reply:
@@ -29,5 +29,11 @@ def fixed_reply(reason: str, max_chars: int) -> Reply:
             status="needs_human",
             reply="We are very busy right now. A team member will reply to you soon.\n"
                   "আমরা এখন খুব ব্যস্ত। আমাদের একজন সদস্য শীঘ্রই আপনাকে উত্তর দেবেন।",
+        )
+    if reason == "empty":
+        return Reply(
+            status="refused",
+            reply="Please write your question.\n"
+                  "অনুগ্রহ করে আপনার প্রশ্নটি লিখুন।",
         )
     raise ValueError(f"unknown reason: {reason}")

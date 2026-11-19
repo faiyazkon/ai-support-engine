@@ -10,7 +10,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.config import get_settings
+from app.core.config import get_settings
 
 
 class Base(DeclarativeBase):
@@ -46,6 +46,6 @@ def get_session_factory():
 
 
 def init_db() -> None:
-    from app import models  # noqa: F401  (importing registers the tables)
+    from app.database import models  # noqa: F401  (importing registers the tables)
 
     Base.metadata.create_all(get_engine())

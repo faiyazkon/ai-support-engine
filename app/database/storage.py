@@ -3,8 +3,8 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import func, select, update
 
-from app.db import get_session_factory
-from app.models import Message, User
+from app.database.connection import get_session_factory
+from app.database.models import Message, User
 
 
 def utcnow() -> datetime:
@@ -22,13 +22,17 @@ def begin_message(user_key: str, channel: str, text: str, counted: bool) -> int:
             session.flush()  # the user row must exist before a message row points at it
         user.last_seen = now
         user.message_count += 1
+        # Refused messages were never answered, so we don't keep their text (saves space and privacy).
+        text_to_keep = None
+        if counted:
+            text_to_keep = text
+
         message = Message(
             user_key=user_key,
             created_at=now,
             counted=counted,
             status="in_progress",
-            # Refused messages were never answered, so we don't keep their text (saves space and privacy).
-            original_text=text if counted else None,
+            original_text=text_to_keep,
         )
         session.add(message)
         session.flush()

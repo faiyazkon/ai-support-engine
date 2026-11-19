@@ -1,16 +1,19 @@
 """The pipeline: the belt that runs each layer in order. Later layers are added here.
 
-Right now: Layer 2 (secret user ID), Layer 3 (limits) and the database record of what happened.
+Right now: Layer 2 (secret user ID), Layer 3 (limits), Layer 4 (cleaning), Layer 5 (hide private details)
+and the database record.
 A layer that says "stop" ends the trip with a fixed reply, and nothing after it runs.
 Every message is written to the database when it arrives and updated when it ends.
 """
 import time
 
-from app import storage
-from app.identity import make_user_key
-from app.limits import get_limiter
-from app.replies import fixed_reply
-from app.schemas import IncomingMessage, Reply
+from app.database import storage
+from app.layers.cleaning import clean
+from app.layers.identity import make_user_key
+from app.layers.limits import get_limiter
+from app.layers.privacy import hide_private
+from app.layers.replies import fixed_reply
+from app.api.schemas import IncomingMessage, Reply
 
 
 def _ms(started: float) -> int:
@@ -30,9 +33,24 @@ async def handle(msg: IncomingMessage) -> Reply:
                                latency_ms=_ms(started))
         return reply
 
+    cleaned = clean(msg.text)  # Layer 4
+    if cleaned.text == "":  # the message was only invisible characters
+        reply = fixed_reply("empty", limiter.max_chars)
+        storage.finish_message(message_id, reply.status, reason="empty", reply_text=reply.reply, latency_ms=_ms(started))
+        return reply
+
+    # The profile name is cleaned the same way as the message, so both are written the same way when compared.
+    profile_name = None
+    if msg.profile_name is not None:
+        profile_name = clean(msg.profile_name).text
+
+    hidden = hide_private(cleaned.text, profile_name)  # Layer 5
+
     reply = Reply(
         status="answered",
-        reply=f"[layers 1-3 + database only] received a {len(msg.text)}-character message from {msg.channel}.",
+        reply=f"[layers 1-5 + database only] received a {len(cleaned.text)}-character message from {msg.channel}. "
+              f"Hid {hidden.count} private details.",
     )
-    storage.finish_message(message_id, reply.status, reply_text=reply.reply, latency_ms=_ms(started))
+    storage.finish_message(message_id, reply.status, reply_text=reply.reply, text_sent_to_llm=hidden.text,
+                           latency_ms=_ms(started))
     return reply

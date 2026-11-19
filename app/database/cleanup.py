@@ -1,9 +1,9 @@
-"""Run by hand or by a daily scheduler:  python -m app.cleanup
+"""Run by hand or by a daily scheduler:  python -m app.database.cleanup
 Erases message texts older than RETENTION_DAYS. (The server also does this once each time it starts.)
 """
-from app.config import get_settings
-from app.db import init_db
-from app.storage import purge_old_texts
+from app.core.config import get_settings
+from app.database.connection import init_db
+from app.database.storage import purge_old_texts
 
 if __name__ == "__main__":
     init_db()

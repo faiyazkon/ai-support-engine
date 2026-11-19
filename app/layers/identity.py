@@ -11,7 +11,7 @@ every number and compare. HMAC mixes in a secret, so that guessing is not possib
 import hashlib
 import hmac
 
-from app.config import get_settings
+from app.core.config import get_settings
 
 # 16 hex characters = 64 bits. With 1 million users the chance that any two share a label is about 1 in 37 million.
 ID_LENGTH = 16
@@ -20,5 +20,7 @@ ID_LENGTH = 16
 def make_user_key(channel: str, user_id: str, secret: str | None = None) -> str:
     # "channel" can only be one of our fixed words (no ":" inside), so "channel:user_id" is never ambiguous.
     message = f"{channel}:{user_id}".encode("utf-8")
-    key = (secret if secret is not None else get_settings().id_secret).encode("utf-8")
+    if secret is None:
+        secret = get_settings().id_secret
+    key = secret.encode("utf-8")
     return hmac.new(key, message, hashlib.sha256).hexdigest()[:ID_LENGTH]

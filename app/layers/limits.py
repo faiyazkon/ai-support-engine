@@ -16,8 +16,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 
-from app.config import get_settings
-from app import storage
+from app.core.config import get_settings
+from app.database import storage
 
 DHAKA = timezone(timedelta(hours=6))  # the shop's "day" runs on Dhaka time (no daylight saving there)
 RATE_WINDOW_SECONDS = 60

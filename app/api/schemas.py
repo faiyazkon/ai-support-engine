@@ -8,7 +8,7 @@ class IncomingMessage(BaseModel):
     # Unknown fields are rejected, so a typo like "tekst" shows up as an error instead of being ignored.
     model_config = ConfigDict(extra="forbid")
 
-    channel: Literal["telegram", "test"]
+    channel: Literal["telegram", "web", "test"]
     user_id: str = Field(min_length=1, max_length=64)
     profile_name: str | None = Field(default=None, max_length=100)
     text: str = Field(min_length=1)
